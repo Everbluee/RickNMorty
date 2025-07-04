@@ -11,9 +11,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.ricknmorty.ui.theme.RickNMortyTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,10 +22,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RickNMortyTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                Scaffold(
+                    topBar = {
+                        // implement dynamic header Characters/Character Details
+                        TopAppBar(
+                            header = "Rick and Morty Characters"
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = "Characters",
+                        modifier = Modifier.padding(it)
                     )
                 }
             }
@@ -33,18 +41,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(header: String) {
-    androidx.compose.material3.TopAppBar(
+    TopAppBar(
         title = { header },
         modifier = Modifier,
         navigationIcon = { Icons.AutoMirrored.Filled.ArrowBack },
