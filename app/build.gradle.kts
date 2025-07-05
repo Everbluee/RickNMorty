@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation(libs.converter.gson)
     implementation(libs.retrofit)
+    implementation(libs.coil.compose)
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

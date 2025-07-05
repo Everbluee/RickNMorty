@@ -2,9 +2,16 @@ package com.example.ricknmorty.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,14 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.ricknmorty.models.Character
 import com.example.ricknmorty.models.CharacterViewModel
 
 @Composable
-fun CharactersListView(innerPadding: PaddingValues) {
-    val characterViewModel = CharacterViewModel()
+fun CharactersListView(characterViewModel: CharacterViewModel, innerPadding: PaddingValues) {
     val characterSet by characterViewModel.data.observeAsState(initial = emptySet())
     val isLoading by characterViewModel.loading.observeAsState(initial = false)
     var selected by remember { mutableStateOf<Character?>(null) }
@@ -60,54 +68,93 @@ fun CharactersListView(innerPadding: PaddingValues) {
             contentPadding = PaddingValues(4.dp),
         ) {
             // Can add alphabet letters with h-dividers
-            items(
-                count = characterSetSorted.size,
-                key = { index -> characterSetSorted.elementAt(index).id },
-                itemContent = { index ->
-                    CharacterCard(characterSetSorted.elementAt(index))
+            items(count = (characterSetSorted.size + 1) / 2) { rowIndex ->
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)) {
+                    val index1 = rowIndex * 2
+                    val index2 = index1 + 1
+
+                    CharacterCard(
+                        characterSetSorted.elementAt(index1),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                    )
+
+                    if (index2 < characterSetSorted.size) {
+                        CharacterCard(
+                            characterSetSorted.elementAt(index2),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                        )
+                    } else {
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                        )
+                    }
                 }
-            )
+            }
         }
     }
 }
 
 @Composable
-fun CharacterCard(character: Character) {
+fun CharacterCard(character: Character, modifier: Modifier) {
     Card(
-        shape = RoundedCornerShape(4.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .background(Color.White)
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        modifier = modifier.aspectRatio(1f)
     ) {
-        //AsyncImage() as background - image from URL with Coil
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black),
-                        startY = Float.POSITIVE_INFINITY / 2f,
-                        endY = Float.POSITIVE_INFINITY
-                    )
-                ),
-            verticalArrangement = Arrangement.Bottom
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomStart
         ) {
-            Text(
-                text = character.name,
-                modifier = Modifier.padding(16.dp),
-                color = Color.White,
-                fontSize = 24.sp
+            AsyncImage(
+                model = character.image,
+                contentDescription = character.name,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-            HorizontalDivider(
-                modifier = Modifier.padding(4.dp),
-            )
-            Text(
-                text = character.getEpisodesCount().toString(),
-                modifier = Modifier.padding(16.dp),
-                color = Color.White,
-                fontSize = 16.sp
-            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black),
+                        )
+                    )
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.BottomStart),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = character.name,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+
+                    HorizontalDivider(
+                        color = Color.White.copy(alpha = 0.5f)
+                    )
+
+                    Text(
+                        text = character.getEpisodesCount().toString(),
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                }
+            }
         }
     }
 }
