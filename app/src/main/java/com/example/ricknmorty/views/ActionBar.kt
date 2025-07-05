@@ -8,15 +8,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.ricknmorty.MainActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionBar(header: String) {
-    androidx.compose.material3.TopAppBar(
+    TopAppBar(
         title = { Text(text = header) },
+        modifier = Modifier.shadow(4.dp),
         navigationIcon = { NavigateBackIconButton(context = LocalContext.current) }
     )
 }

@@ -149,9 +149,9 @@ fun CharacterCard(character: Character, modifier: Modifier) {
                     )
 
                     Text(
-                        text = character.getEpisodesCount().toString(),
+                        text = "Number of episodes: " + character.getEpisodesCount().toString(),
                         color = Color.White,
-                        fontSize = 12.sp
+                        fontSize = 10.sp
                     )
                 }
             }
