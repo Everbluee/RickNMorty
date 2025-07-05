@@ -4,17 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.ricknmorty.ui.theme.RickNMortyTheme
+import com.example.ricknmorty.views.CharactersListView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,11 +32,8 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = "Characters",
-                        modifier = Modifier.padding(it)
-                    )
+                ) { innerPadding ->
+                    CharactersListView(innerPadding)
                 }
             }
         }
@@ -45,8 +44,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TopAppBar(header: String) {
     TopAppBar(
-        title = { header },
-        modifier = Modifier,
+        title = { Text(text = header) },
+        modifier = Modifier.background(color = MaterialTheme.colorScheme.primary),
         navigationIcon = { Icons.AutoMirrored.Filled.ArrowBack },
     )
 }

@@ -18,4 +18,5 @@ data class Character(
     val created: String
 ) {
     fun getEpisodesCount() = episode.size
+    fun getOriginName() = origin.name
 }
