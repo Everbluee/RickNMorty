@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,7 +44,7 @@ fun CharacterDetailView(character: Character, innerPadding: PaddingValues) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.Black)
+                .background(color = MaterialTheme.colorScheme.surface)
         ) {
             CharacterImage(character)
             CharacterInfo(character)
@@ -80,6 +81,16 @@ private fun CharacterInfo(character: Character) {
 }
 
 @Composable
+fun DetailText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.End
+    )
+}
+
+@Composable
 fun DetailRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -88,7 +99,7 @@ fun DetailRow(label: String, value: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            color = Color.White.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
         DetailText(text = value)
     }
@@ -103,7 +114,7 @@ fun EpisodesList(label: String, episodes: List<String>) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            color = Color.White.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
         Column(horizontalAlignment = Alignment.End) {
             episodes.take(5).forEach { episodeUrl ->
@@ -124,7 +135,7 @@ fun CharacterImage(character: Character) {
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
-        contentAlignment = Alignment.TopStart
+        contentAlignment = Alignment.BottomStart
     ) {
         AsyncImage(
             model = character.image,
@@ -134,10 +145,11 @@ fun CharacterImage(character: Character) {
         )
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .fillMaxHeight(0.7f)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black),
+                        colors = listOf(Color.Transparent, MaterialTheme.colorScheme.surface),
                     )
                 ),
             contentAlignment = Alignment.BottomStart
@@ -152,20 +164,10 @@ fun CharacterImage(character: Character) {
                 Text(
                     text = character.name,
                     style = MaterialTheme.typography.displayMedium,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                HorizontalDivider(color = Color.White.copy(alpha = 0.5f))
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
             }
         }
     }
-}
-
-@Composable
-fun DetailText(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = Color.White,
-        textAlign = TextAlign.End
-    )
 }
