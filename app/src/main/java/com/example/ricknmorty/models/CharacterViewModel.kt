@@ -43,4 +43,8 @@ class CharacterViewModel : ViewModel() {
             _loading.value = false
         }
     }
+
+    fun getCharacterById(characterId: Int): Character? {
+        return _data.value?.find { it.id == characterId }
+    }
 }

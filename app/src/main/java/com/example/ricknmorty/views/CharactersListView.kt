@@ -1,6 +1,8 @@
 package com.example.ricknmorty.views
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -39,7 +42,11 @@ import com.example.ricknmorty.models.Character
 import com.example.ricknmorty.models.CharacterViewModel
 
 @Composable
-fun CharactersListView(characterViewModel: CharacterViewModel, innerPadding: PaddingValues) {
+fun CharactersListView(
+    characterViewModel: CharacterViewModel,
+    innerPadding: PaddingValues,
+    onCharacterClick: (Int) -> Unit
+) {
     val characterSet by characterViewModel.data.observeAsState(initial = emptySet())
     val isLoading by characterViewModel.loading.observeAsState(initial = false)
     var selected by remember { mutableStateOf<Character?>(null) }
@@ -75,20 +82,23 @@ fun CharactersListView(characterViewModel: CharacterViewModel, innerPadding: Pad
                     val index1 = rowIndex * 2
                     val index2 = index1 + 1
 
+                    val character1 = characterSetSorted.elementAt(index1)
+                    val character2 = characterSetSorted.elementAt(index2)
+
                     CharacterCard(
-                        characterSetSorted.elementAt(index1),
+                        character1,
                         modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
-                    )
+                    ) { onCharacterClick(character1.id) }
 
                     if (index2 < characterSetSorted.size) {
                         CharacterCard(
-                            characterSetSorted.elementAt(index2),
+                            character2,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(4.dp)
-                        )
+                        ) { onCharacterClick(character2.id) }
                     } else {
                         Spacer(
                             modifier = Modifier
@@ -103,11 +113,21 @@ fun CharactersListView(characterViewModel: CharacterViewModel, innerPadding: Pad
 }
 
 @Composable
-fun CharacterCard(character: Character, modifier: Modifier) {
+fun CharacterCard(
+    character: Character,
+    modifier: Modifier,
+    onClick: (Int) -> Unit = {}
+) {
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        modifier = modifier.aspectRatio(1f)
+        modifier = modifier
+            .aspectRatio(1f)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(),
+                onClick = { onClick(character.id) }
+            )
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -120,7 +140,6 @@ fun CharacterCard(character: Character, modifier: Modifier) {
                     .fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,13 +162,11 @@ fun CharacterCard(character: Character, modifier: Modifier) {
                         color = Color.White,
                         fontSize = 16.sp
                     )
-
                     HorizontalDivider(
                         color = Color.White.copy(alpha = 0.5f)
                     )
-
                     Text(
-                        text = "Number of episodes: " + character.getEpisodesCount().toString(),
+                        text = "Number of episodes: ${character.episode.size}",
                         color = Color.White,
                         fontSize = 10.sp
                     )
