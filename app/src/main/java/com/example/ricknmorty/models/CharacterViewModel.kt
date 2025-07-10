@@ -24,6 +24,9 @@ class CharacterViewModel : ViewModel() {
     private val _loadingCharacter = MutableLiveData<Boolean>()
     val loadingCharacter: LiveData<Boolean> = _loadingCharacter
 
+    private val _characterListError = MutableLiveData(false)
+    val characterListError: LiveData<Boolean> = _characterListError
+
     init {
         fetchData()
     }
@@ -31,6 +34,7 @@ class CharacterViewModel : ViewModel() {
     private fun fetchData() {
         viewModelScope.launch {
             _loading.value = true
+            _characterListError.value = false
 
             try {
                 val response = apiService.getCharacters().awaitResponse()
@@ -39,11 +43,13 @@ class CharacterViewModel : ViewModel() {
                     _characterList.value = response.body()?.results ?: emptySet()
                 } else {
                     _characterList.value = emptySet()
+                    _characterListError.value = true
                 }
             } catch (e: Exception) {
                 Log.e("CharacterViewModel", "Exception occurred: ${e.message}")
                 e.printStackTrace()
                 _characterList.value = emptySet()
+                _characterListError.value = true
             } finally {
                 _loading.value = false
             }
