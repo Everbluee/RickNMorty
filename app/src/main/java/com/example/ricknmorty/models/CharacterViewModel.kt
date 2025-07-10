@@ -34,7 +34,7 @@ class CharacterViewModel : ViewModel() {
         fetchData()
     }
 
-    private fun fetchData() {
+    fun fetchData() {
         viewModelScope.launch {
             _loading.value = true
             _characterListError.value = false

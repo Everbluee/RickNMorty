@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,81 +56,102 @@ fun CharactersListView(
 
     val characterSetSorted = characterSet.sortedBy { it.name }
 
-    if (isLoading) {
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator(
+    when {
+        isLoading -> {
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(50.dp)
-            )
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) { CircularProgressIndicator() }
         }
-    } else if (error) {
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = "Error Icon",
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(64.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Oops, something went wrong...",
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(4.dp),
-        ) {
-            items(count = (characterSetSorted.size + 1) / 2) { rowIndex ->
-                Row(modifier = Modifier
+
+        error -> ErrorDisplay(innerPadding, characterViewModel)
+        else -> CharacterList(innerPadding, characterSetSorted, onCharacterClick)
+    }
+}
+
+@Composable
+private fun CharacterList(
+    innerPadding: PaddingValues,
+    characterSetSorted: List<Character>,
+    onCharacterClick: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+        contentPadding = PaddingValues(4.dp),
+    ) {
+        items(count = (characterSetSorted.size + 1) / 2) { rowIndex ->
+            Row(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min)) {
-                    val index1 = rowIndex * 2
-                    val index2 = index1 + 1
+                    .height(IntrinsicSize.Min)
+            ) {
+                val index1 = rowIndex * 2
+                val index2 = index1 + 1
 
-                    val character1 = characterSetSorted.elementAt(index1)
-                    val character2 = characterSetSorted.elementAt(index2)
+                val character1 = characterSetSorted.elementAt(index1)
+                val character2 = characterSetSorted.elementAt(index2)
 
+                CharacterCard(
+                    character1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(4.dp)
+                ) { onCharacterClick(character1.id) }
+
+                if (index2 < characterSetSorted.size) {
                     CharacterCard(
-                        character1,
+                        character2,
                         modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
-                    ) { onCharacterClick(character1.id) }
-
-                    if (index2 < characterSetSorted.size) {
-                        CharacterCard(
-                            character2,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(4.dp)
-                        ) { onCharacterClick(character2.id) }
-                    } else {
-                        Spacer(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(4.dp)
-                        )
-                    }
+                    ) { onCharacterClick(character2.id) }
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ErrorDisplay(
+    innerPadding: PaddingValues,
+    characterViewModel: CharacterViewModel
+) {
+    Column(
+        modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = "Error Icon",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Oops, something went wrong...",
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { characterViewModel.fetchData() },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = "Try again!")
         }
     }
 }
@@ -197,3 +219,4 @@ fun CharacterCard(
         }
     }
 }
+
