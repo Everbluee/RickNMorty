@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -32,7 +34,7 @@ object AppDestinations {
     const val CHARACTER_LIST_ROUTE = "characterList"
     const val CHARACTER_DETAIL_ROUTE = "characterDetail"
     const val CHARACTER_ID_ARG = "characterId"
-    val CHARACTER_DETAIL_WITH_ARG = "$CHARACTER_DETAIL_ROUTE/{$CHARACTER_ID_ARG}"
+    const val CHARACTER_DETAIL_WITH_ARG = "$CHARACTER_DETAIL_ROUTE/{$CHARACTER_ID_ARG}"
 }
 
 class MainActivity : ComponentActivity() {
@@ -55,19 +57,31 @@ fun RickAndMortyApp(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val characterIdArg = backStackEntry?.arguments?.getInt(AppDestinations.CHARACTER_ID_ARG)
 
     var currentScreenTitle by rememberSaveable { mutableStateOf("Rick and Morty Characters") }
 
-    Scaffold(
-        topBar = {
-            val title = when (currentRoute) {
-                AppDestinations.CHARACTER_LIST_ROUTE -> "Rick and Morty Characters"
-                else -> "Character Details"
+    val selectedCharacter by characterViewModel.selectedCharacter.observeAsState()
+
+    LaunchedEffect(characterIdArg) {
+        if (characterIdArg != null) {
+            characterViewModel.getCharacterById(characterIdArg)
+        }
+    }
+
+    LaunchedEffect(currentRoute, selectedCharacter) {
+        currentScreenTitle = when {
+            currentRoute == AppDestinations.CHARACTER_LIST_ROUTE -> "Rick and Morty Characters"
+            currentRoute?.startsWith(AppDestinations.CHARACTER_DETAIL_ROUTE) == true -> {
+                selectedCharacter?.name ?: "Rick and Morty Characters"
             }
 
-            currentScreenTitle = title
-            ActionBar(header = currentScreenTitle)
-        },
+            else -> "Rick and Morty Characters"
+        }
+    }
+
+    Scaffold(
+        topBar = { ActionBar(header = currentScreenTitle) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         NavHost(
@@ -96,13 +110,11 @@ fun RickAndMortyApp(
                     .arguments?.getInt(AppDestinations.CHARACTER_ID_ARG)
 
                 if (characterId != null) {
-                    val character = characterViewModel.getCharacterById(characterId)
-
-                    if (character != null) {
-                        CharacterDetailView(character = character, innerPadding = innerPadding)
-                    } else {
-                        Text("Error: Character not found.")
-                    }
+                    CharacterDetailView(
+                        characterId = characterId,
+                        characterViewModel = characterViewModel,
+                        innerPadding = innerPadding
+                    )
                 } else {
                     Text("Error: Character ID not found.")
                 }

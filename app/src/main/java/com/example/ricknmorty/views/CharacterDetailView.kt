@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -31,23 +34,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ricknmorty.models.Character
+import com.example.ricknmorty.models.CharacterViewModel
 
 
 @Composable
-fun CharacterDetailView(character: Character, innerPadding: PaddingValues) {
+fun CharacterDetailView(
+    characterId: Int,
+    characterViewModel: CharacterViewModel,
+    innerPadding: PaddingValues
+) {
+    LaunchedEffect(characterId) {
+        characterViewModel.getCharacterById(characterId)
+    }
+
+    val character = characterViewModel.selectedCharacter.observeAsState(initial = null)
+    val isLoading = characterViewModel.loadingCharacter.observeAsState(initial = false)
+
     Card(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding),
         shape = RectangleShape
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface)
+                .background(color = MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
         ) {
-            CharacterImage(character)
-            CharacterInfo(character)
+            if (isLoading.value) {
+                CircularProgressIndicator()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.surface),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    character.value?.let {
+                        CharacterImage(it)
+                        CharacterInfo(it)
+                    } ?: Text("Error: Character not found.")
+                }
+            }
         }
     }
 }
@@ -121,6 +150,7 @@ fun EpisodesList(label: String, episodes: List<String>) {
                 val episodeNumber = episodeUrl.substringAfterLast("/")
                 DetailText(text = "Episode $episodeNumber")
             }
+
             if (episodes.size > 5) {
                 DetailText(text = "...and ${episodes.size - 5} more")
             }

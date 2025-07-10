@@ -47,7 +47,7 @@ fun CharactersListView(
     innerPadding: PaddingValues,
     onCharacterClick: (Int) -> Unit
 ) {
-    val characterSet by characterViewModel.data.observeAsState(initial = emptySet())
+    val characterSet by characterViewModel.characterList.observeAsState(initial = emptySet())
     val isLoading by characterViewModel.loading.observeAsState(initial = false)
     var selected by remember { mutableStateOf<Character?>(null) }
 

@@ -12,11 +12,17 @@ import retrofit2.awaitResponse
 class CharacterViewModel : ViewModel() {
     private val apiService = RetrofitClient.apiService
 
-    private val _data = MutableLiveData<Set<Character>>()
-    val data: LiveData<Set<Character>> = _data
+    private val _characterList = MutableLiveData<Set<Character>>()
+    val characterList: LiveData<Set<Character>> = _characterList
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
+
+    private val _selectedCharacter = MutableLiveData<Character?>()
+    val selectedCharacter: MutableLiveData<Character?> = _selectedCharacter
+
+    private val _loadingCharacter = MutableLiveData<Boolean>()
+    val loadingCharacter: LiveData<Boolean> = _loadingCharacter
 
     init {
         fetchData()
@@ -30,21 +36,34 @@ class CharacterViewModel : ViewModel() {
                 val response = apiService.getCharacters().awaitResponse()
 
                 if (response.isSuccessful) {
-                    _data.value = response.body()?.results ?: emptySet()
+                    _characterList.value = response.body()?.results ?: emptySet()
                 } else {
-                    _data.value = emptySet()
+                    _characterList.value = emptySet()
                 }
             } catch (e: Exception) {
                 Log.e("CharacterViewModel", "Exception occurred: ${e.message}")
                 e.printStackTrace()
-                _data.value = emptySet()
+                _characterList.value = emptySet()
+            } finally {
+                _loading.value = false
             }
-
-            _loading.value = false
         }
     }
 
-    fun getCharacterById(characterId: Int): Character? {
-        return _data.value?.find { it.id == characterId }
+    fun getCharacterById(characterId: Int) {
+        viewModelScope.launch {
+            _loadingCharacter.value = true
+            _selectedCharacter.value = null
+
+            try {
+                val response = apiService.getCharacter(characterId).awaitResponse()
+                _selectedCharacter.value = response.body()
+            } catch (e: Exception) {
+                Log.e("CharacterViewModel", "Exception occurred: ${e.message}")
+                e.printStackTrace()
+            } finally {
+                _loadingCharacter.value = false
+            }
+        }
     }
 }
