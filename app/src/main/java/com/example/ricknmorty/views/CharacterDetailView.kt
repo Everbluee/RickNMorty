@@ -198,20 +198,25 @@ fun CharacterImage(character: Character) {
                 ),
             contentAlignment = Alignment.BottomStart
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = character.name,
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-            }
+            CharacterName(character)
         }
+    }
+}
+
+@Composable
+private fun CharacterName(character: Character) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = character.name,
+            style = MaterialTheme.typography.displayMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
     }
 }
