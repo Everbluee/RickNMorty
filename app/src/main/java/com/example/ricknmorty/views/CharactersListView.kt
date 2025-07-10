@@ -78,44 +78,62 @@ private fun CharacterList(
     characterSetSorted: List<Character>,
     onCharacterClick: (Int) -> Unit
 ) {
+    val charactersByLetter = characterSetSorted.groupBy { it.name.first().uppercaseChar() }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding),
         contentPadding = PaddingValues(4.dp),
     ) {
-        items(count = (characterSetSorted.size + 1) / 2) { rowIndex ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-            ) {
-                val index1 = rowIndex * 2
-                val index2 = index1 + 1
-
-                val character1 = characterSetSorted.elementAt(index1)
-                val character2 = characterSetSorted.elementAt(index2)
-
-                CharacterCard(
-                    character1,
+        charactersByLetter.forEach { (letter, charactersInSection) ->
+            item {
+                Text(
+                    text = letter.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(4.dp)
-                ) { onCharacterClick(character1.id) }
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
-                if (index2 < characterSetSorted.size) {
+            items(count = (charactersInSection.size + 1) / 2) { rowIndex ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                ) {
+                    val index1 = rowIndex * 2
+                    val index2 = index1 + 1
+
+                    val character1 = charactersInSection.elementAt(index1)
                     CharacterCard(
-                        character2,
+                        character1,
                         modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
-                    ) { onCharacterClick(character2.id) }
-                } else {
-                    Spacer(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp)
-                    )
+                    ) { onCharacterClick(character1.id) }
+
+                    if (index2 < charactersInSection.size) {
+                        val character2 = charactersInSection.elementAt(index2)
+                        CharacterCard(
+                            character2,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                        ) { onCharacterClick(character2.id) }
+                    } else {
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(4.dp)
+                        )
+                    }
                 }
             }
         }
