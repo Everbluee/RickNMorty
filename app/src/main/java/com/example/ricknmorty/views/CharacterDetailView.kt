@@ -112,12 +112,13 @@ private fun CharacterInfo(character: Character) {
             DetailRow("Type:", character.type.ifEmpty { "N/A" })
             DetailRow("Gender:", character.gender)
             DetailRow("Origin:", character.origin.name)
+            DetailRow("Created:", character.whenCreated())
+
             if (character.episode.isNotEmpty()) {
                 EpisodesList("Episodes:", character.episode)
             } else {
                 DetailRow("Episodes:", "N/A")
             }
-            DetailRow("Created:", character.whenCreated())
         }
     }
 }
