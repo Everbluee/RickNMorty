@@ -70,18 +70,14 @@ fun CharacterDetailView(
         shape = RectangleShape
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             if (isLoading.value) {
                 CircularProgressIndicator()
             } else {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     character.value?.let {
@@ -97,7 +93,9 @@ fun CharacterDetailView(
 @Composable
 private fun CharacterInfo(character: Character) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.TopStart
     ) {
         Column(
@@ -109,7 +107,11 @@ private fun CharacterInfo(character: Character) {
         ) {
             DetailRow("Status:", character.status)
             DetailRow("Species:", character.species)
-            DetailRow("Type:", character.type.ifEmpty { "N/A" })
+
+            if (character.type.isNotEmpty()) {
+                DetailRow("Type:", character.type)
+            }
+
             DetailRow("Gender:", character.gender)
             DetailRow("Origin:", character.origin.name)
             DetailRow("Created:", character.whenCreated())
@@ -128,7 +130,6 @@ fun DetailText(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.End
     )
 }
@@ -215,7 +216,6 @@ private fun CharacterName(character: Character) {
         Text(
             text = character.name,
             style = MaterialTheme.typography.displayMedium,
-            color = MaterialTheme.colorScheme.onSurface
         )
         HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
     }
