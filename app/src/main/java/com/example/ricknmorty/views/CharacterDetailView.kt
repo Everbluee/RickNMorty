@@ -19,9 +19,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ricknmorty.models.Character
 import com.example.ricknmorty.models.CharacterViewModel
@@ -41,14 +44,24 @@ import com.example.ricknmorty.models.CharacterViewModel
 fun CharacterDetailView(
     characterId: Int,
     characterViewModel: CharacterViewModel,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState
 ) {
+    val character = characterViewModel.selectedCharacter.observeAsState(initial = null)
+    val isLoading = characterViewModel.loadingCharacter.observeAsState(initial = false)
+    val error by characterViewModel.characterDetailError.observeAsState(false)
+
     LaunchedEffect(characterId) {
         characterViewModel.getCharacterById(characterId)
     }
 
-    val character = characterViewModel.selectedCharacter.observeAsState(initial = null)
-    val isLoading = characterViewModel.loadingCharacter.observeAsState(initial = false)
+    LaunchedEffect(error) {
+        if (error) {
+            snackbarHostState.showSnackbar("Oops, something went wrong...")
+            navController.popBackStack()
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -74,7 +87,7 @@ fun CharacterDetailView(
                     character.value?.let {
                         CharacterImage(it)
                         CharacterInfo(it)
-                    } ?: Text("Error: Character not found.")
+                    }
                 }
             }
         }
